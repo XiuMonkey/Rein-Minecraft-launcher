@@ -120,16 +120,16 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>PrM Lancher Alpha 1.0</TargetName>
-    <IncludePath>H:\mc\PrM Window\Pre-built.2\include;$(IncludePath)</IncludePath>
-    <LibraryPath>H:\mc\PrM Window\Pre-built.2\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>H:\mc\ReM Launcher\Pre-built.2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>H:\mc\ReM Launcher\Pre-built.2\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);H:\mc\PrM Window\Pre-built.2\include</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);H:\mc\PrM Window\Pre-built.2\lib\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>H:\mc\PrM Window\Pre-built.2\include;$(IncludePath)</IncludePath>
-    <LibraryPath>H:\mc\PrM Window\Pre-built.2\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>H:\mc\ReM Launcher\Pre-built.2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>H:\mc\ReM Launcher\Pre-built.2\lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
