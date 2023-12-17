@@ -25,6 +25,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CJson.h" />
+    <ClInclude Include="Function.h" />
+    <ClInclude Include="LauncherCore.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
@@ -44,6 +47,7 @@
     <Image Include="res\aaa.bmp" />
     <Image Include="res\back.jpg" />
     <Image Include="res\back.png" />
+    <Image Include="res\border.png" />
     <Image Include="res\Download.jpg" />
     <Image Include="res\Download.png" />
     <Image Include="res\Download2.jpg" />

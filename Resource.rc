@@ -56,6 +56,8 @@ LAUNCHNORMAL            PNG                     "res\\launch_main.png"
 
 IDB_PNG5                PNG                     "res\\Download.png"
 
+Border                  PNG                     "res\\border.png"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -74,7 +76,7 @@ IDI_ICON1               ICON                    "res\\LOGO.ico"
 
 IDR_JPG4                JPG                     "res\\edit-javapath.jpg"
 
-BACK                    JPG                     "res\\back.jpg"
+BACK                       JPG                     "res\\back.jpg"
 
 
 /////////////////////////////////////////////////////////////////////////////

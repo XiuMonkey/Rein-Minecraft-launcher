@@ -1,9 +1,6 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #pragma comment(lib,"pthread_lib.lib")
-//#pragma comment(lib, "msvcrtd.lib") 
-//#pragma comment(lib, "vcruntimed.lib") 
-//#pragma comment(lib, "ucrtd.lib") 
 #include <pthread.h>  
 #include <windows.h>
 #include <stdio.h>
@@ -14,6 +11,7 @@
 #include <string>
 #include <shlwapi.h>
 #include <iostream>
+#include "Function.h"
 #include "LauncherCore.h"
 #include "resource.h"
 #include "wincodec.h"
@@ -34,14 +32,15 @@
 int CursorIsLeaveCount = 0;
 int ad3 = 0;
 int mbnum2 = 0;
-HDC MainHDC;
-HDC LaunchHDC;
-HDC DownloadHDC;
+int isBorderDown;
+HDC mHDC;
 HDC JavaPathEditHDC;
 HWND MainWin;//主窗口句柄
 HWND LaunchButton;//开始按钮句柄
 HWND DownloadButton;//下载按钮句柄
 HWND JavaPathEdit;//java路径编辑框
+HWND SettingButton;
+HWND mBorder;
 HFONT hFont;//字体句柄
 WNDCLASS wc = { 0 };//主窗口类
 char javapath[1000];
@@ -68,7 +67,7 @@ float ccc;
 using namespace std;
 #pragma endregion
 
-VOID MyDraw(HWND hwnd, ID2D1Factory* fac, LONG facx, LONG facy, UINT resourceName,char* resourceType)
+VOID DrawPic(HWND hwnd, ID2D1Factory* fac, LONG facx, LONG facy, UINT resourceName,char* resourceType)
 {
 	float c;
 	c = dpi;
@@ -160,54 +159,27 @@ VOID MyDraw(HWND hwnd, ID2D1Factory* fac, LONG facx, LONG facy, UINT resourceNam
 };
 
 //释放资源文件
-BOOL FreeMyResource(UINT uiResouceName, char* lpszResourceType, char* lpszSaveFileName)
-{
-	HRSRC hRsrc = ::FindResource(GetModuleHandle(NULL), MAKEINTRESOURCE(uiResouceName), lpszResourceType);
-	LPTSTR szBuffer = new TCHAR[1024];
-	if (hRsrc == NULL)
-	{
-		return FALSE;
-	}
-	DWORD dwSize = ::SizeofResource(NULL, hRsrc);
-	if (0 >= dwSize)
-	{
-		return FALSE;
-	}
-	HGLOBAL hGlobal = ::LoadResource(NULL, hRsrc);
-	if (NULL == hGlobal)
-	{
-		return FALSE;
-	}
-	LPVOID lpVoid = ::LockResource(hGlobal);
-	if (NULL == lpVoid)
-	{
-		return FALSE;
-	}
-	FILE* fp = NULL;
-	fopen_s(&fp, lpszSaveFileName, "wb+");
-	if (NULL == fp)
-	{
-		return FALSE;
-	}
-	fwrite(lpVoid, sizeof(char), dwSize, fp);
-	fclose(fp);
-	return TRUE;
-}
 
-void OnPaintBack(HDC hdc) {
-	MyDraw(MainWin, D2DFactory, 810 , 540 , BACK, "JPG");
+void OnPaintBack() {
+	DrawPic(MainWin, D2DFactory, 810 , 540 , BACK, "JPG");
 }
-void OnPaintLaunchNormal(HDC hdc) {
-	MyDraw(LaunchButton, D2DFactory,340 ,200, LAUNCHNORMAL, "PNG");
+void OnPaintBorder() {
+	DrawPic(mBorder, D2DFactory, 810, 23, Border, "PNG");
 }
-void OnPaintLaunchFocus(HDC hdc) {
-	MyDraw(LaunchButton, D2DFactory, 340, 200, LAUNCHFOCUS, "PNG");
+void OnPaintLaunchNormal() {
+	DrawPic(LaunchButton, D2DFactory,340 ,200, LAUNCHNORMAL, "PNG");
 }
-void OnPaintDownload(HDC hdc) {
-	MyDraw(DownloadButton, D2DFactory, 106, 146, IDB_PNG5, "PNG");
+void OnPaintLaunchFocus() {
+	DrawPic(LaunchButton, D2DFactory, 340, 200, LAUNCHFOCUS, "PNG");
 }
-void OnPaintJavaPathEdit(HDC hdc) {
-	MyDraw(JavaPathEdit, D2DFactory, 237, 25, IDR_JPG4, "JPG");
+void OnPaintDownload() {
+	DrawPic(DownloadButton, D2DFactory, 106, 146, IDB_PNG5, "PNG");
+}
+void OnPaintSetting() {
+	DrawPic(SettingButton, D2DFactory, 106, 146, IDB_PNG5, "PNG");
+}
+void OnPaintJavaPathEdit() {
+	DrawPic(JavaPathEdit, D2DFactory, 237, 25, IDR_JPG4, "JPG");
 }
 
 LRESULT CALLBACK DownloadProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
@@ -234,13 +206,13 @@ LRESULT CALLBACK DownloadProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPa
 		}
 	case WM_PAINT:
 		if (mbnum2==0){
-			DownloadHDC = BeginPaint(DownloadButton, &ps);
-			OnPaintDownload(DownloadHDC);
+			mHDC = BeginPaint(DownloadButton, &ps);
+			OnPaintDownload();
 			EndPaint(DownloadButton, &ps);
 			SetLayeredWindowAttributes(DownloadButton, RGB(0, 0, 0), 1, LWA_COLORKEY | LWA_ALPHA);
 		}
 		else{
-			DownloadHDC = BeginPaint(DownloadButton, &ps);
+			mHDC = BeginPaint(DownloadButton, &ps);
 			SetLayeredWindowAttributes(DownloadButton, RGB(0, 0, 0), 130, LWA_COLORKEY | LWA_ALPHA);
 		}
 		break;
@@ -249,12 +221,91 @@ LRESULT CALLBACK DownloadProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPa
 	}
 	return 0;
 }
-void *playclick(void* args){
-	mciSendString("play data\\01\\Click.mp3", NULL, 0, NULL);
+
+int CursorIsFirstPaintCount = 0;//光标是否是首次渲染计数
+
+LRESULT CALLBACK SettingProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
+{
+	POINT pt2;
+	POINT pt;
+	TRACKMOUSEEVENT tme;
+	tme.cbSize = sizeof(tme);
+	tme.dwFlags = TME_LEAVE;
+	tme.dwHoverTime = HOVER_DEFAULT;
+	tme.hwndTrack = hwnd;
+	PAINTSTRUCT ps;
+	LONG x;
+	switch (Message)
+	{
+	case WM_MOUSEMOVE:
+		mbnum2++;
+		GetCursorPos(&pt2);
+		TrackMouseEvent(&tme);
+	case WM_MOUSELEAVE:
+		GetCursorPos(&pt);
+		if (!((pt.x == pt2.x) && (pt.y == pt2.y))) {
+			mbnum2 = 0;
+		}
+	case WM_PAINT:
+		if (mbnum2 == 0) {
+			mHDC = BeginPaint(SettingButton, &ps);
+			OnPaintSetting();
+			EndPaint(SettingButton, &ps);
+			SetLayeredWindowAttributes(SettingButton, RGB(0, 0, 0), 1, LWA_COLORKEY | LWA_ALPHA);
+		}
+		else {
+			mHDC = BeginPaint(SettingButton, &ps);
+			SetLayeredWindowAttributes(SettingButton, RGB(0, 0, 0), 130, LWA_COLORKEY | LWA_ALPHA);
+		}
+		break;
+	default:
+		return DefWindowProc(hwnd, Message, wParam, lParam);   //让系统处理消息，这条语句一定要加上
+	}
 	return 0;
 }
 
-int CursorIsFirstPaintCount = 0;//光标是否是首次渲染计数
+LRESULT CALLBACK mBorderProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
+	POINT pt1;
+	pt1.y = 0;
+	pt1.x = 0;
+	POINT pt2;
+	RECT rt1;
+	pthread_t tr2;
+	PAINTSTRUCT ps;
+	TRACKMOUSEEVENT tme;
+	UINT_PTR mTimer = 0;   // 定时器ID
+	tme.cbSize = sizeof(tme);
+	tme.dwFlags = TME_LEAVE;
+	tme.dwHoverTime = HOVER_DEFAULT;
+	tme.hwndTrack = hwnd;
+	switch (Message) {
+	case WM_PAINT:
+		mHDC = BeginPaint(mBorder, &ps);
+		OnPaintBorder();
+		EndPaint(mBorder, &ps);
+		break;
+	case  WM_LBUTTONDOWN:
+		isBorderDown = 1;
+		SetCapture(mBorder);
+		break;
+	case  WM_LBUTTONUP:
+		isBorderDown = 0;
+		ReleaseCapture();
+		break;
+	case WM_MOUSEMOVE:
+		if (isBorderDown == 1) {
+			GetCursorPos(&pt2);
+			GetWindowRect(MainWin, &rt1);
+			SetWindowPos(MainWin, MainWin, pt2.x-300, pt2.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+			GetCursorPos(&pt1);
+			TrackMouseEvent(&tme);
+		}
+		default:
+		    return DefWindowProc(hwnd, Message, wParam, lParam);   //让系统处理消息，这条语句一定要加上
+     }
+	return 0;
+}
+
 LRESULT CALLBACK LaunchProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
 	pthread_t tr1;
@@ -271,7 +322,7 @@ LRESULT CALLBACK LaunchProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPara
 	switch (Message)
 	{
 	case WM_MOUSEMOVE:	
-		LaunchHDC = BeginPaint(LaunchButton, &ps);
+		mHDC = BeginPaint(LaunchButton, &ps);
 		if (ad3 == 0) {
 			pthread_create(&tr1, NULL, playclick, NULL);
 			ad3++;
@@ -294,22 +345,21 @@ LRESULT CALLBACK LaunchProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPara
 			CursorIsLeaveCount = 0;   
 		}
 	case WM_PAINT:
-
-		FreeMyResource(IDR_MP31, "MP3", "data//01//Click.mp3");
+	    FreeMyResource(IDR_MP31, "MP3", "data//01//Click.mp3");
 		if (CursorIsLeaveCount == 0) {
-			if (CursorIsFirstPaintCount == 0) {
+			if (CursorIsFirstPaintCount < 2) {
 				CursorIsFirstPaintCount++;
 			}
 			else {
 				pthread_create(&tr2, NULL, playclick, NULL);
 				ad3 = 0;
 			}
-			LaunchHDC = BeginPaint(LaunchButton, &ps);
-			OnPaintLaunchNormal(LaunchHDC);
+			mHDC = BeginPaint(LaunchButton, &ps);
+			OnPaintLaunchNormal();
 			EndPaint(LaunchButton, &ps);
 		}
 		else {
-			OnPaintLaunchFocus(LaunchHDC);
+			OnPaintLaunchFocus();
 			EndPaint(LaunchButton, &ps);
 		}
 		break;
@@ -349,6 +399,16 @@ int CALLBACK WinMain(HINSTANCE hIns, HINSTANCE hPreIns, LPSTR lpCmdLine, int nCm
 	wc.lpfnWndProc = DownloadProc;
 	wc.lpszClassName = TEXT("DownloadButton");
 	RegisterClass(&wc);
+	wc.cbClsExtra = sizeof(long);
+	wc.hIcon = NULL;
+	wc.lpfnWndProc = SettingProc;
+	wc.lpszClassName = TEXT("SettingButton");
+	RegisterClass(&wc);
+	wc.cbClsExtra = sizeof(long);
+	wc.hIcon = NULL;
+	wc.lpfnWndProc = mBorderProc;
+	wc.lpszClassName = TEXT("mBorder");
+	RegisterClass(&wc);
 	getopath(opath);
 	_mkdir("data");
 	_mkdir("data\\01");
@@ -356,7 +416,6 @@ int CALLBACK WinMain(HINSTANCE hIns, HINSTANCE hPreIns, LPSTR lpCmdLine, int nCm
 	FreeMyResource(IDR_JAR1, "JAR", "data\\02\\log4j-patch-agent-1.0.jar");
 	MainWin = CreateWindow("main", "ReM Alpha1.0", WS_CLIPCHILDREN | WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX| WS_BORDER| WS_EX_LAYERED| WS_EX_COMPOSITED, 100, 100, 810,540, NULL, NULL, hIns, NULL);//创建主窗口
 	dpi = GetDpiForWindow(MainWin); //获取DPI
-	UpdateWindow(LaunchButton);//创建完主窗口让LaunchButton重绘
 #pragma endregion
 	WNDCLASS Bt = { 0 };
 	UpdateWindow(MainWin);
@@ -383,14 +442,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msgID, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 		D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &D2DFactory);
 		ShowWindow(hWnd, SW_SHOW);
-		LaunchButton = CreateWindowEx(0, TEXT("LaunchButton"), NULL, WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN| WS_EX_TOOLWINDOW | WS_VISIBLE |  WS_EX_LAYERED ,30 , 350 ,136, 80,hWnd, (HMENU)(x++), hInst, NULL);
-		DownloadButton = CreateWindowEx(0, TEXT("DownloadButton"), NULL, WS_CHILD | WS_VISIBLE,235 , 205 ,106, 146,hWnd, (HMENU)(x++), hInst, NULL);
+		LaunchButton = CreateWindowEx(0, TEXT("LaunchButton"), NULL, WS_CHILD| WS_CLIPSIBLINGS | WS_CLIPCHILDREN| WS_EX_TOOLWINDOW | WS_VISIBLE |  WS_EX_LAYERED ,40 , 410,136, 80,hWnd, (HMENU)(x++), hInst, NULL);
+		DownloadButton = CreateWindowEx(0, TEXT("DownloadButton"), NULL, WS_CHILD | WS_VISIBLE,240 , 230 ,106, 146,hWnd, (HMENU)(x++), hInst, NULL);
+		SettingButton = CreateWindowEx(0, TEXT("SettingButton"), NULL, WS_CHILD | WS_VISIBLE, 630, 320, 166, 146, hWnd, (HMENU)(x++), hInst, NULL);
+		mBorder = CreateWindowEx(0, TEXT("mBorder"), NULL, WS_CHILD | WS_VISIBLE, 00, 00, 810, 23, hWnd, (HMENU)(x++), hInst, NULL);
 		SetWindowLong(LaunchButton, GWL_EXSTYLE, GetWindowLong(LaunchButton, GWL_EXSTYLE) | WS_EX_LAYERED);
 		SetLayeredWindowAttributes(LaunchButton, RGB(255, 255, 255), 255, LWA_COLORKEY|LWA_ALPHA);
 		SetWindowLong(DownloadButton, GWL_EXSTYLE, GetWindowLong(LaunchButton, GWL_EXSTYLE) | WS_EX_LAYERED);
 		SetLayeredWindowAttributes(DownloadButton, RGB(0, 0, 0), 1, LWA_COLORKEY | LWA_ALPHA);
+		SetWindowLong(SettingButton, GWL_EXSTYLE, GetWindowLong(LaunchButton, GWL_EXSTYLE) | WS_EX_LAYERED);
+		SetLayeredWindowAttributes(SettingButton, RGB(0, 0, 0), 1, LWA_COLORKEY | LWA_ALPHA);
 #pragma region 创建编辑框并上位图
-		JavaPathEdit = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL| ES_NOHIDESEL, 450, 10, 237, 25, hWnd, NULL, NULL, NULL);
+		JavaPathEdit = CreateWindow("edit", NULL, WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL| ES_NOHIDESEL , 450, 10, 237, 25, hWnd, NULL, NULL, NULL);
+		SetWindowLong(JavaPathEdit, GWL_EXSTYLE, GetWindowLong(LaunchButton, GWL_EXSTYLE) | WS_EX_LAYERED);
+		SetLayeredWindowAttributes(JavaPathEdit, RGB(0, 0, 0), 1, LWA_COLORKEY | LWA_ALPHA);
 		hFont = CreateFont(20, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,DEFAULT_PITCH | FF_SWISS, "等线");
 		SendMessage(JavaPathEdit, WM_SETFONT, (WPARAM)hFont, TRUE);
 #pragma endregion
@@ -400,14 +465,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msgID, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		break;
 	case WM_PAINT:
-		MainHDC = BeginPaint(hWnd, &ps);
-		OnPaintBack(MainHDC);
-		MainHDC = BeginPaint(JavaPathEdit, &ps);
-		OnPaintJavaPathEdit(JavaPathEditHDC);
+		mHDC = BeginPaint(hWnd, &ps);
+		OnPaintBack();
+		mHDC = BeginPaint(JavaPathEdit, &ps);
+		OnPaintJavaPathEdit();
 		EndPaint(hWnd, &ps);
-	case WM_MOVE:
-		GetWindowRect(MainWin, &rc);
-		SetWindowPos(LaunchButton, HWND_TOP, rc.left+50, rc.top+420, 0,0, SWP_SHOWWINDOW | SWP_NOSIZE);
+
+	case WM_NCCALCSIZE:
+		return 0;
+		break;
 	default:
 		SetCursor(LoadCursor(NULL, IDC_ARROW));
 		DefWindowProc(hWnd, msgID, wParam, lParam);

@@ -23,6 +23,15 @@
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Function.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LauncherCore.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CJson.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
@@ -97,6 +106,9 @@
       <Filter>资源文件</Filter>
     </Image>
     <Image Include="res\back.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\border.png">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>
