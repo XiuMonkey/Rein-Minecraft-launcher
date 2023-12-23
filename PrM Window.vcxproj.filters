@@ -111,6 +111,21 @@
     <Image Include="res\border.png">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="res\logo.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\Destroy.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\Min.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\back2.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\GoBack.png">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\log4j-patch-agent-1.0.jar" />

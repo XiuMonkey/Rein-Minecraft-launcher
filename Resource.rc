@@ -58,6 +58,16 @@ IDB_PNG5                PNG                     "res\\Download.png"
 
 Border                  PNG                     "res\\border.png"
 
+LOGOPNG                 PNG                     "res\\logo.png"
+
+mDESTROY                PNG                     "res\\Destroy.png"
+
+MIN                     PNG                     "res\\Min.png"
+
+BACK2                   PNG                     "res\\back2.png"
+
+GOBACK                  PNG                     "res\\GoBack.png"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -76,7 +86,7 @@ IDI_ICON1               ICON                    "res\\LOGO.ico"
 
 IDR_JPG4                JPG                     "res\\edit-javapath.jpg"
 
-BACK                       JPG                     "res\\back.jpg"
+BACK                    JPG                     "res\\back.jpg"
 
 
 /////////////////////////////////////////////////////////////////////////////

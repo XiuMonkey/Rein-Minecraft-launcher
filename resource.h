@@ -20,13 +20,23 @@
 #define IDR_JPG2                        136
 #define IDB_PNG6                        137
 #define Border                          137
-#define BACK                            65535
+#define IDB_PNG7                        138
+#define IDB_PNG8                        139
+#define BACK                            140
+#define LOGOPNG                         141
+#define mDESTROY                        142
+#define IDB_PNG9                        143
+#define MIN                             143
+#define IDB_PNG10                       144
+#define BACK2                           144
+#define IDB_PNG11                       145
+#define GOBACK                          145
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        138
+#define _APS_NEXT_RESOURCE_VALUE        146
 #define _APS_NEXT_COMMAND_VALUE         40002
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
