@@ -1,7 +1,5 @@
 
 #define _CRT_SECURE_NO_WARNINGS
-#pragma comment(lib,"pthread_lib.lib")
-#include <pthread.h>  
 #include <thread>  
 #include <windows.h>
 #include <stdio.h>
@@ -608,7 +606,6 @@ LRESULT CALLBACK DownloadProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPa
 {
 	thread tt;
 	int ss;
-	pthread_t tr1;
 	POINT pt2;
 	POINT pt;
 	TRACKMOUSEEVENT tme;
@@ -703,7 +700,6 @@ LRESULT CALLBACK mBorderProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPar
 	pt1.x = 0;
 	POINT pt2;
 	RECT rt1;
-	pthread_t tr2;
 	PAINTSTRUCT ps;
 	TRACKMOUSEEVENT tme;
 	UINT_PTR mTimer = 0;   // ¶¨Ê±Æ÷ID
@@ -749,8 +745,7 @@ LRESULT CALLBACK mBorderProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPar
 
 LRESULT CALLBACK LaunchProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
-	pthread_t tr1;
-	pthread_t tr2;
+	thread tt;
 	PAINTSTRUCT ps;
 	RECT rt;
 	POINT pt;
@@ -783,12 +778,13 @@ LRESULT CALLBACK LaunchProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPara
 				CursorIsFirstPaintCount++;
 			}
 			else {
-				pthread_create(&tr2, NULL, playclick, NULL);
+				tt = thread(&playclick2);
+				tt.detach();
 			}
 		}
 		else {
-			pthread_create(&tr2, NULL, playclick, NULL);
-			pthread_detach(tr2);
+			tt = thread(&playclick2);
+			tt.detach();
 			mHDC = BeginPaint(LaunchButton, &ps);
 			OnPaintLaunchFocus();
 			EndPaint(LaunchButton, &ps);
@@ -909,7 +905,6 @@ LRESULT CALLBACK MinProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 
 LRESULT CALLBACK GoBackProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) {
 	void* thread_result;
-	pthread_t tr1;
 	POINT pt2;
 	POINT pt;
 	TRACKMOUSEEVENT tme;
@@ -1037,7 +1032,6 @@ int CALLBACK WinMain(HINSTANCE hIns, HINSTANCE hPreIns, LPSTR lpCmdLine, int nCm
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msgID, WPARAM wParam, LPARAM lParam)
 {
-	pthread_t tr1;
 	RECT rc;
 	static int x = 0;
 	int wmId, wmEvent;
