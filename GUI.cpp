@@ -2,6 +2,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #pragma comment(lib,"pthread_lib.lib")
 #include <pthread.h>  
+#include <thread>  
 #include <windows.h>
 #include <stdio.h>
 #include <ocidl.h>
@@ -605,6 +606,7 @@ void OnPaintGoBackFocus() {
 
 LRESULT CALLBACK DownloadProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam)
 {
+	thread tt;
 	int ss;
 	pthread_t tr1;
 	POINT pt2;
@@ -641,8 +643,8 @@ LRESULT CALLBACK DownloadProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPa
 		break;
 	case  WM_LBUTTONDOWN:
 		WhichBack = 1;
-		pthread_create(&tr1, NULL, playclick, NULL);
-		pthread_join(tr1,NULL);
+		tt=thread(&playclick2);
+		tt.join();
 		InvalidateRect(MainWin,NULL,TRUE);
 		break;
 	default:
@@ -719,10 +721,13 @@ LRESULT CALLBACK mBorderProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lPar
 		break;
 	case  WM_LBUTTONDOWN:
 		isBorderDown = 1;
+		LockWindowUpdate(MainWin);
 		SetCapture(mBorder);
 		break;
 	case  WM_LBUTTONUP:
 		isBorderDown = 0;
+		CursorIsFirstPaintCount = 0;
+		LockWindowUpdate(NULL);
 		ReleaseCapture();
 		break;
 	case WM_MOUSEMOVE:
@@ -1092,8 +1097,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msgID, WPARAM wParam, LPARAM lParam)
 		}
 		else if (WhichBack == 1) {
 			OnPaintBack2();
-			pthread_create(&tr1, NULL, playclick, NULL);
-			pthread_join(tr1, NULL);
+			thread tt(playclick2);
+			tt.join();
 		}
 		mHDC = BeginPaint(JavaPathEdit, &ps);
 		OnPaintJavaPathEdit();

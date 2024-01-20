@@ -129,8 +129,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>ReM Lancher Alpha 1.0</TargetName>
-    <IncludePath>H:\mc\ReM Launcher\Pre-built.2\include;H:\mc\ReM Launcher\zlib\include;$(IncludePath)</IncludePath>
-    <LibraryPath>H:\mc\ReM Launcher\Pre-built.2\lib\x64;H:\mc\ReM Launcher\zlib\lib\Release\MT;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\User\source\repos\ReM\Pre-built.2\include;C:\Users\User\source\repos\ReM\zlib\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\User\source\repos\ReM\Pre-built.2\lib\x64;C:\Users\User\source\repos\ReM\zlib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);H:\mc\PrM Window\Pre-built.2\include</IncludePath>
@@ -216,7 +216,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>H:\mc\ReM Launcher\zlib\lib\Release\MT;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\User\source\repos\ReM\zlib\lib\Release\MT;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>zlibstatic.lib;pthread_lib.lib;d2d1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ProjectReference>

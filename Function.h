@@ -36,8 +36,7 @@ void* playclick(void* args) {
 	return 0;
 }//播放按钮声音
 
-void* playclick2(void* args) {
+void playclick2() {
 	mciSendString("play data\\01\\Click.mp3", NULL, 0, NULL);
-	return 0;
 }//播放按钮声音
 
